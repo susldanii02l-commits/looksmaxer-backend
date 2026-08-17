@@ -7,16 +7,16 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const ROOT = __dirname;
 const HTML = path.join(ROOT, 'strona_LOOKSMAXER_GOTOWA.html');
 
-const SYSTEM_PROMPT = `Jesteś AI Looksmaxer — specjalistycznym asystentem dotyczącym looksmaxingu, pielęgnacji, stylu, włosów, skóry, sylwetki, proporcji twarzy i innych tematów powiązanych z poprawą wyglądu.
+const SYSTEM_PROMPT = `Jesteś AI Looksmaxer — specjalistycznym asystentem dotyczącym looksmaxingu, pielęgnacji, stylu, włosów, skóry, sylwetki, proporcji twarzy i innych tematów powiązan[...]
 
 ZASADY:
 1. Korzystaj z informacji przekazanych w KNOWLEDGE FROM THIS WEBSITE jako wiedzy strony. Nie udawaj, że każda teza z tej strony jest naukowo potwierdzona.
 2. Wyraźnie oddzielaj: informacje ze strony, informacje ogólne oraz ustalenia naukowe.
 3. Nie wymyślaj faktów ani źródeł. Jeśli czegoś nie wiesz, powiedz to.
-4. Nie podawaj instrukcji DIY dotyczących operacji, zastrzyków, samodzielnego pobierania/wstrzykiwania krwi, bonesmashingu, nielegalnych/niebezpiecznych leków, hormonów, sterydów, insuliny ani innych ryzykownych eksperymentów. Możesz wyjaśnić, czym są i jakie mają ryzyko, oraz skierować do lekarza.
-5. Przy pytaniach medycznych nie diagnozuj i nie przedstawiaj ryzykownej metody jako pewnego sposobu poprawy wyglądu.
+4. Nie podawaj instrukcji DIY dotyczących operacji, zastrzyków, samodzielnego pobierania/wstrzykiwania krwi, bonesmashingu, nielegalnych/niebezpiecznych leków, hormonów, sterydów, insuliny an[...]
+5. Przy pytaniach medycznych nie diagnozuj i nie przedstawiaj rykownej metody jako pewnego sposobu poprawy wyglądu.
 6. Odpowiadaj po polsku, konkretnie i bez zbędnego lania wody. Możesz używać terminologii looksmaxing, ale w razie potrzeby wyjaśnij ją normalnym językiem.
-7. Nie oceniaj człowieka jako „subhuman”, „cuck”, „god-tier” itp. Możesz wyjaśniać takie określenia, ale nie używaj ich do poniżania użytkownika.
+7. Nie oceniaj człowieka jako „subhuman", „cuck", „god-tier" itp. Możesz wyjaśniać takie określenia, ale nie używaj ich do poniżania użytkownika.
 8. Jeśli użytkownik pyta o zawartość tej strony, traktuj KNOWLEDGE FROM THIS WEBSITE jako główne źródło treści strony.
 `;
 
@@ -65,9 +65,9 @@ const server = http.createServer(async (req, res) => {
       const history = Array.isArray(body.history) ? body.history.slice(-12) : [];
       const siteKnowledge = String(body.siteKnowledge || '').slice(0, 70000);
       
-      const prompt = `${SYSTEM_PROMPT}\n\nKNOWLEDGE FROM THIS WEBSITE:\n${siteKnowledge}\n\nUSER CONVERSATION:\n${history.map(x => `${x.role}: ${x.content}`).join('\n')}\n\nCURRENT USER QUESTION:\n${message}`;
+      const prompt = `${SYSTEM_PROMPT}\n\nKNOWLEDGE FROM THIS WEBSITE:\n${siteKnowledge}\n\nUSER CONVERSATION:\n${history.map(x => `${x.role}: ${x.content}`).join('\n')}\n\nCURRENT USER QUESTION:\[...]
       
-      const apiRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=' + encodeURIComponent(GEMINI_API_KEY), {
+      const apiRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(GEMINI_API_KEY), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
