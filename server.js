@@ -51,7 +51,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // Punkt dla pobierania wiedzy o stronie (naprawia błąd 404)
-  if (req.method === 'GET' && req.url === '/api/site-knowledge') {
+  if (req.method === 'POST' && (req.url === '/api/chat' || req.url.startsWith('/api/chat'))) {
     return send(res, 200, { knowledge: SYSTEM_PROMPT });
   }
 
