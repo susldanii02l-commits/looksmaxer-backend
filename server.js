@@ -40,7 +40,7 @@ function readBody(req) {
 }
 
 const server = http.createServer(async (req, res) => {
-  // Obsługa wstępnych zapytań przeglądarki (CORS Preflight)
+  // Obsługa zapytania testowego CORS (OPTIONS)
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': '*',
@@ -50,13 +50,13 @@ const server = http.createServer(async (req, res) => {
     return res.end();
   }
 
-  // Punkt dla pobierania wiedzy o stronie (naprawia błąd 404)
-  if (req.method === 'POST' && (req.url === '/api/chat' || req.url.startsWith('/api/chat'))) {
+  // Naprawa błędu 404 dla pobierania wiedzy o stronie (GET /api/site-knowledge)
+  if (req.method === 'GET' && req.url.startsWith('/api/site-knowledge')) {
     return send(res, 200, { knowledge: SYSTEM_PROMPT });
   }
 
-  // Główny endpoint czatu
-  if (req.method === 'POST' && req.url === '/api/chat') {
+  // Główny endpoint czatu (POST /api/chat)
+  if (req.method === 'POST' && req.url.startsWith('/api/chat')) {
     if (!GEMINI_API_KEY) return send(res, 500, { error: 'Brak GEMINI_API_KEY w zmiennych środowiskowych.' });
     
     try {
@@ -86,7 +86,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Obsługa plików statycznych
+  // Serwowanie plików statycznych
   if (req.method === 'GET') {
     let file = req.url === '/' ? HTML : path.join(ROOT, req.url.split('?')[0]);
     if (!file.startsWith(ROOT) || !fs.existsSync(file)) return send(res, 404, { error: 'Not found' });
