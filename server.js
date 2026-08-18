@@ -62,17 +62,16 @@ const server = http.createServer(async (req, res) => {
       const history = Array.isArray(body.history) ? body.history.slice(-12) : [];
       const siteKnowledge = String(body.siteKnowledge || '').slice(0, 70000);
       
-      // Budujemy konwersję pod format Gemini API
       const contents = history.map(x => ({
         role: x.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: x.content }]
       }));
       
-      // Dodajemy bieżącą wiadomość użytkownika oraz wiedzę ze strony
       const userFullPrompt = `KNOWLEDGE FROM THIS WEBSITE:\n${siteKnowledge}\n\nCURRENT USER QUESTION: ${message}`;
       contents.push({ role: 'user', parts: [{ text: userFullPrompt }] });
 
-      const apiRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + encodeURIComponent(GEMINI_API_KEY), {
+      // Zmieniono model na gemini-3.6-flash
+      const apiRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=' + encodeURIComponent(GEMINI_API_KEY), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
