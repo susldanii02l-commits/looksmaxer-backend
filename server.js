@@ -15,7 +15,7 @@ ZASADY:
 3. Nie wymyślaj faktów ani źródeł. Jeśli czegoś nie wiesz, powiedz to.
 4. Nie podawaj instrukcji DIY dotyczących operacji, zastrzyków, samodzielnego pobierania/wstrzykiwania krwi, bonesmashingu, nielegalnych/niebezpiecznych leków, hormonów, sterydów, insuliny itp.
 5. Przy pytaniach medycznych nie diagnozuj i nie przedstawiaj ryzykownej metody jako pewnego sposobu poprawy wyglądu.
-6. Odpowiadaj po polsku, konkretnie i bez zbędnego lania wody.. Możesz używać terminologii looksmaxing, ale w razie potrzeby wyjaśnij ją normalnym językiem.
+6. Odpowiadaj po polsku, konkretnie i bez zbędnego lania wody. Możesz używać terminologii looksmaxing, ale w razie potrzeby wyjaśnij ją normalnym językiem.
 7. Nie oceniaj człowieka jako „subhuman", „cuck", „god-tier" itp. Możesz wyjaśniać takie określenia, ale nie używaj ich do poniżania użytkownika.
 8. Jeśli użytkownik pyta o zawartość tej strony, traktuj KNOWLEDGE FROM THIS WEBSITE jako główne źródło treści strony.
 `;
@@ -64,8 +64,8 @@ const server = http.createServer(async (req, res) => {
       
       const prompt = `${SYSTEM_PROMPT}\n\nKNOWLEDGE FROM THIS WEBSITE:\n${siteKnowledge}\n\nUSER CONVERSATION:\n${history.map(x => `${x.role}: ${x.content}`).join('\n')}\n\nCURRENT USER QUESTION: ${message}`;
       
-      // Zmieniono model na gemini-1.5-flash, który jest w pełni wspierany
-      const apiRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + encodeURIComponent(GEMINI_API_KEY), {
+      // Zmieniono model na gemini-3.6-flash zgodnie z komunikatem o błędzie
+      const apiRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=' + encodeURIComponent(GEMINI_API_KEY), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
