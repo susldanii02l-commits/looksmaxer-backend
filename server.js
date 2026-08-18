@@ -64,7 +64,6 @@ const server = http.createServer(async (req, res) => {
       
       const prompt = `${SYSTEM_PROMPT}\n\nKNOWLEDGE FROM THIS WEBSITE:\n${siteKnowledge}\n\nUSER CONVERSATION:\n${history.map(x => `${x.role}: ${x.content}`).join('\n')}\n\nCURRENT USER QUESTION: ${message}`;
       
-      // Zmieniono model na gemini-3.6-flash zgodnie z komunikatem o błędzie
       const apiRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=' + encodeURIComponent(GEMINI_API_KEY), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
