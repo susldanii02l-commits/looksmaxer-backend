@@ -1,11 +1,19 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { Pool } = require('pg');
+const bcrypt = require('bcrypt');
 
 const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const ROOT = __dirname;
 const HTML = path.join(ROOT, 'strona_LOOKSMAXER_GOTOWA.html');
+
+// Połączenie z bazą PostgreSQL z Railway
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+});
 
 const SYSTEM_PROMPT = `Jesteś AI Looksmaxer — specjalistycznym asystentem dotyczącym looksmaxingu, pielęgnacji, stylu, włosów, skóry, sylwetki, proporcji twarzy i innych tematów powiązanych.
 
@@ -49,6 +57,45 @@ const server = http.createServer(async (req, res) => {
     return res.end();
   }
 
+  // === REJESTRACJA UŻYTKOWNIKA ===
+  if (req.method === 'POST' && req.url.startsWith('/api/register')) {
+    try {
+      const body = await readBody(req);
+      const { email, password } = body;
+      if (!email || !password) return send(res, 400, { error: 'Podaj email i hasło' });
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const result = await pool.query(
+        'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email',
+        [email, hashedPassword]
+      );
+      return send(res, 200, { message: 'Zarejestrowano pomyślnie!', user: result.rows[0] });
+    } catch (err) {
+      return send(res, 400, { error: 'Błąd rejestracji (ten email może być już zajęty)' });
+    }
+  }
+
+  // === LOGOWANIE UŻYTKOWNIKA ===
+  if (req.method === 'POST' && req.url.startsWith('/api/login')) {
+    try {
+      const body = await readBody(req);
+      const { email, password } = body;
+      if (!email || !password) return send(res, 400, { error: 'Podaj email i hasło' });
+
+      const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+      if (userResult.rows.length === 0) return send(res, 400, { error: 'Błędny email lub hasło' });
+
+      const user = userResult.rows[0];
+      const validPassword = await bcrypt.compare(password, user.password_hash);
+      if (!validPassword) return send(res, 400, { error: 'Błędny email lub hasło' });
+
+      return send(res, 200, { message: 'Zalogowano pomyślnie!', userId: user.id, email: user.email });
+    } catch (err) {
+      return send(res, 500, { error: 'Błąd serwera podczas logowania' });
+    }
+  }
+
+  // === ISTNIEJĄCE ENDPOINTY AI I STRONY ===
   if (req.method === 'GET' && req.url.startsWith('/api/site-knowledge')) {
     return send(res, 200, { knowledge: SYSTEM_PROMPT });
   }
