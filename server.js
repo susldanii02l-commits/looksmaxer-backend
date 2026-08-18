@@ -7,13 +7,13 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const ROOT = __dirname;
 const HTML = path.join(ROOT, 'strona_LOOKSMAXER_GOTOWA.html');
 
-const SYSTEM_PROMPT = `Jesteś AI Looksmaxer — specjalistycznym asystentem dotyczącym looksmaxingu, pielęgnacji, stylu, włosów, skóry, sylwetki, proporcji twarzy i innych tematów powiązan[...]
+const SYSTEM_PROMPT = `Jesteś AI Looksmaxer — specjalistycznym asystentem dotyczącym looksmaxingu, pielęgnacji, stylu, włosów, skóry, sylwetki, proporcji twarzy i innych tematów powiązanych.
 
 ZASADY:
 1. Korzystaj z informacji przekazanych w KNOWLEDGE FROM THIS WEBSITE jako wiedzy strony. Nie udawaj, że każda teza z tej strony jest naukowo potwierdzona.
 2. Wyraźnie oddzielaj: informacje ze strony, informacje ogólne oraz ustalenia naukowe.
 3. Nie wymyślaj faktów ani źródeł. Jeśli czegoś nie wiesz, powiedz to.
-4. Nie podawaj instrukcji DIY dotyczących operacji, zastrzyków, samodzielnego pobierania/wstrzykiwania krwi, bonesmashingu, nielegalnych/niebezpiecznych leków, hormonów, sterydów, insuliny an[...]
+4. Nie podawaj instrukcji DIY dotyczących operacji, zastrzyków, samodzielnego pobierania/wstrzykiwania krwi, bonesmashingu, nielegalnych/niebezpiecznych leków, hormonów, sterydów, insuliny itp.
 5. Przy pytaniach medycznych nie diagnozuj i nie przedstawiaj ryzykownej metody jako pewnego sposobu poprawy wyglądu.
 6. Odpowiadaj po polsku, konkretnie i bez zbędnego lania wody. Możesz używać terminologii looksmaxing, ale w razie potrzeby wyjaśnij ją normalnym językiem.
 7. Nie oceniaj człowieka jako „subhuman", „cuck", „god-tier" itp. Możesz wyjaśniać takie określenia, ale nie używaj ich do poniżania użytkownika.
@@ -40,7 +40,6 @@ function readBody(req) {
 }
 
 const server = http.createServer(async (req, res) => {
-  // Obsługa zapytania testowego CORS (OPTIONS)
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': '*',
@@ -50,12 +49,10 @@ const server = http.createServer(async (req, res) => {
     return res.end();
   }
 
-  // Naprawa błędu 404 dla pobierania wiedzy o stronie (GET /api/site-knowledge)
   if (req.method === 'GET' && req.url.startsWith('/api/site-knowledge')) {
     return send(res, 200, { knowledge: SYSTEM_PROMPT });
   }
 
-  // Główny endpoint czatu (POST /api/chat)
   if (req.method === 'POST' && req.url.startsWith('/api/chat')) {
     if (!GEMINI_API_KEY) return send(res, 500, { error: 'Brak GEMINI_API_KEY w zmiennych środowiskowych.' });
     
@@ -67,7 +64,8 @@ const server = http.createServer(async (req, res) => {
       
       const prompt = `${SYSTEM_PROMPT}\n\nKNOWLEDGE FROM THIS WEBSITE:\n${siteKnowledge}\n\nUSER CONVERSATION:\n${history.map(x => `${x.role}: ${x.content}`).join('\n')}\n\nCURRENT USER QUESTION: ${message}`;
       
-      const apiRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(GEMINI_API_KEY), {
+      // Zmieniono model na gemini-1.5-flash, który jest w pełni wspierany
+      const apiRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + encodeURIComponent(GEMINI_API_KEY), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -86,7 +84,6 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Serwowanie plików statycznych
   if (req.method === 'GET') {
     let file = req.url === '/' ? HTML : path.join(ROOT, req.url.split('?')[0]);
     if (!file.startsWith(ROOT) || !fs.existsSync(file)) return send(res, 404, { error: 'Not found' });
