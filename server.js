@@ -27,7 +27,7 @@ function send(res, status, body, type='application/json') {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
   }); 
-  res.end(type === 'application/json' ? JSON.JSON.stringify(body) : body); 
+  res.end(type === 'application/json' ? JSON.stringify(body) : body); 
 }
 
 function readBody(req) { 
@@ -70,7 +70,6 @@ const server = http.createServer(async (req, res) => {
       const userFullPrompt = `KNOWLEDGE FROM THIS WEBSITE:\n${siteKnowledge}\n\nCURRENT USER QUESTION: ${message}`;
       contents.push({ role: 'user', parts: [{ text: userFullPrompt }] });
 
-      // Użycie poprawionego, stabilnego modelu gemini-2.5-flash
       const apiRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(GEMINI_API_KEY), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
